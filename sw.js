@@ -1,5 +1,6 @@
 
-const CACHE_NAME = 'biblical-chronology-v31'; // <-- Decremented cache version
+
+const CACHE_NAME = 'biblical-chronology-v32';
 const urlsToCache = [
   './',
   './index.html',
@@ -29,12 +30,12 @@ const urlsToCache = [
   './components/PropheticTimelineChart.js',
   './components/QASection.js',
   './components/QuerySection.js',
+  './components/QRCodeFooter.js',
   './components/ReignsAndProphetsChart.js',
   './components/Spinner.js',
   './components/Tabs.js',
   './components/Timeline.js',
   './components/TimelineItem.js',
-  './components/QRCodeFooter.js',
   './components/VisualizationSelector.js',
   './data/apostolicEventsData.js',
   './data/beliefsClarifiedData.js',
@@ -51,12 +52,12 @@ const urlsToCache = [
   './data/qaData.js',
   './data/reignsAndProphetsVisData.js',
   './data/significantEventsData.js',
-  './data/sourceStudyNumber3.js',
+  './data/sourceCalendarIt1.js',
   './data/sourceChronologyIt1.js',
   './data/sourceDatesRs.js',
-  './data/sourceYearIt2.js',
-  './data/sourceCalendarIt1.js',
+  './data/sourceStudyNumber3.js',
   './data/sourceWatchtower20111101.js',
+  './data/sourceYearIt2.js',
   './services/geminiService.js',
   './utils/exportUtils.js',
   './utils/parser.js',

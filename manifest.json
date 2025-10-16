@@ -1,9 +1,12 @@
+
 {
   "name": "Biblical Chronology Visualizer",
   "short_name": "Bible Chronology",
   "description": "An interactive timeline visualizing biblical and historical events from creation to the Middle Ages, with AI-powered analysis.",
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "icons": [

@@ -1,6 +1,3 @@
-
-
-
 import { useState, useEffect, useCallback, useMemo, createElement } from 'react';
 import htm from 'htm';
 import { Header } from './components/Header.js';
@@ -55,6 +52,7 @@ const App = () => {
   const [queryError, setQueryError] = useState(null);
   const [activeTab, setActiveTab] = useState('Historical Timeline');
   const [activeVisualization, setActiveVisualization] = useState(null);
+  const [viewingVisualization, setViewingVisualization] = useState(null);
 
   const VISUALIZATIONS = useMemo(() => [
     { 
@@ -161,6 +159,15 @@ const App = () => {
       setActiveVisualization(VISUALIZATIONS[0].title);
     }
   }, [VISUALIZATIONS, activeVisualization]);
+
+  useEffect(() => {
+    if (viewingVisualization) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [viewingVisualization]);
   
   const fullChronologyText = useMemo(() => {
     const modernEventsText = modernEventsData.map(e => e.fullText).join('\n');
@@ -247,6 +254,16 @@ const App = () => {
     }
   }, [fullChronologyText]);
   
+  const handleVisualizationSelect = (title) => {
+    setActiveVisualization(title);
+    const visData = VISUALIZATIONS.find(v => v.title === title);
+    setViewingVisualization(visData);
+  };
+
+  const closeVisualization = () => {
+    setViewingVisualization(null);
+  };
+
   return (
     html`
     <div className="min-h-screen bg-slate-950 text-slate-300">
@@ -275,27 +292,11 @@ const App = () => {
               <${VisualizationSelector}
                 visualizations=${VISUALIZATIONS}
                 activeVisualization=${activeVisualization}
-                onSelect=${setActiveVisualization}
+                onSelect=${handleVisualizationSelect}
               />
-
-              ${(() => {
-                const vis = VISUALIZATIONS.find(v => v.title === activeVisualization);
-                if (!vis) {
-                  return html`<div className="text-center p-8 bg-slate-900/70 rounded-xl border border-slate-800"><p className="text-slate-400">Select a visualization from the list above to view it.</p></div>`;
-                }
-                
-                const ChartComponent = vis.component;
-
-                return html`
-                  <div className="bg-slate-900/70 p-4 sm:p-6 rounded-xl shadow-lg border border-slate-800">
-                    <h3 className="text-xl font-bold text-teal-300 mb-2">${vis.title}</h3>
-                    <p className="text-slate-400 mb-4 text-sm">${vis.description}</p>
-                    <div className="mt-4">
-                      <${ChartComponent} key=${vis.title} ...${vis.props} />
-                    </div>
-                  </div>
-                `;
-              })()}
+               <div className="mt-8 text-center p-8 bg-slate-900/70 rounded-xl border border-slate-800">
+                  <p className="text-slate-400">Select a visualization from the list above to open it in a full-screen view.</p>
+              </div>
             </div>
           `}
 
@@ -304,12 +305,14 @@ const App = () => {
                 <div className="space-y-8">
                     <${ApiKeyManager} fullscreenOnOpen />
                     <${QuerySection}
+                        fullscreenOnOpen
                         conversation=${conversation}
                         onQuerySubmit=${handleQuery}
                         isLoading=${isQueryLoading}
                         error=${queryError}
                     />
                     <${AnalysisSection}
+                        fullscreenOnOpen
                         onAnalyze=${handleAnalysis}
                         analysis=${analysis}
                         isLoading=${isAnalysisLoading}
@@ -331,6 +334,33 @@ const App = () => {
         </div>
       </main>
       <${QRCodeFooter} />
+      
+      ${viewingVisualization && (() => {
+        const ChartComponent = viewingVisualization.component;
+        return html`
+            <div 
+              className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex flex-col p-4 sm:p-6 md:p-8" 
+              role="dialog" 
+              aria-modal="true" 
+              aria-labelledby="vis-title"
+            >
+              <header className="flex justify-between items-center mb-6 flex-shrink-0">
+                <h2 id="vis-title" className="text-2xl font-bold text-teal-300">${viewingVisualization.title}</h2>
+                <button onClick=${closeVisualization} aria-label="Close" className="text-slate-400 hover:text-white p-2 -mr-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth=${2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </header>
+              <div className="flex-grow overflow-y-auto relative min-h-0 bg-slate-900/50 p-4 sm:p-6 rounded-lg border border-slate-800">
+                <p className="text-slate-400 mb-4 text-sm">${viewingVisualization.description}</p>
+                <div className="mt-4">
+                  <${ChartComponent} key=${viewingVisualization.title} ...${viewingVisualization.props} />
+                </div>
+              </div>
+            </div>
+        `;
+      })()}
     </div>
   `
   );
